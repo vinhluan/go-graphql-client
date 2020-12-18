@@ -29,29 +29,31 @@ func NewClient(url string, httpClient *http.Client) *Client {
 	}
 }
 
+// QueryString executes a single GraphQL query request,
+// using the given raw query `q` and populating the response into the `v`.
+// `q` should be a correct GraphQL request string that corresponds to the GraphQL schema.
+func (c *Client) QueryString(ctx context.Context, q string, variables map[string]interface{}, v interface{}) error {
+	return c.do(ctx, q, variables, v)
+}
+
 // Query executes a single GraphQL query request,
 // with a query derived from q, populating the response into it.
 // q should be a pointer to struct that corresponds to the GraphQL schema.
 func (c *Client) Query(ctx context.Context, q interface{}, variables map[string]interface{}) error {
-	return c.do(ctx, queryOperation, q, variables)
+	query := constructQuery(q, variables)
+	return c.do(ctx, query, variables, q)
 }
 
 // Mutate executes a single GraphQL mutation request,
 // with a mutation derived from m, populating the response into it.
 // m should be a pointer to struct that corresponds to the GraphQL schema.
 func (c *Client) Mutate(ctx context.Context, m interface{}, variables map[string]interface{}) error {
-	return c.do(ctx, mutationOperation, m, variables)
+	query := constructMutation(m, variables)
+	return c.do(ctx, query, variables, m)
 }
 
 // do executes a single GraphQL operation.
-func (c *Client) do(ctx context.Context, op operationType, v interface{}, variables map[string]interface{}) error {
-	var query string
-	switch op {
-	case queryOperation:
-		query = constructQuery(v, variables)
-	case mutationOperation:
-		query = constructMutation(v, variables)
-	}
+func (c *Client) do(ctx context.Context, query string, variables map[string]interface{}, v interface{}) error {
 	in := struct {
 		Query     string                 `json:"query"`
 		Variables map[string]interface{} `json:"variables,omitempty"`
@@ -84,7 +86,7 @@ func (c *Client) do(ctx context.Context, op operationType, v interface{}, variab
 		return err
 	}
 	if out.Data != nil {
-		err := jsonutil.UnmarshalGraphQL(*out.Data, v)
+		err := json.Unmarshal(*out.Data, v)
 		if err != nil {
 			// TODO: Consider including response body in returned error, if deemed helpful.
 			return err
