@@ -8,7 +8,7 @@ import (
 
 // Circular structs.
 type CircularHero struct {
-	PrimaryDroids   []CircularDroid
+	PrimaryDroid    CircularDroid
 	SecondaryDroids []CircularDroid
 	OtherDroids     []*CircularDroid
 
@@ -27,7 +27,10 @@ type CircularDroid struct {
 
 type CircularOwner struct {
 	Name String
-	Hero CircularHero // should not be serialized
+
+	Hero   CircularHero    // should not be serialized
+	Friend *CircularHero   // should not be serialized
+	Peers  []*CircularHero // should not be serialized
 }
 
 type CircularFriend struct {
@@ -259,13 +262,13 @@ func TestConstructQuery(t *testing.T) {
 		{
 			name: "does't serialize potentially circular types",
 			v:    CircularHero{},
-			want: `{primaryDroids{primaryFunction,owner{name}},secondaryDroids{primaryFunction,owner{name}},otherDroids{primaryFunction,owner{name}},human{height}}`,
+			want: `{primaryDroid{primaryFunction,owner{name,peers{otherDroids{primaryFunction},human{height}}}},secondaryDroids{primaryFunction,owner{name,peers{otherDroids{primaryFunction},human{height}}}},otherDroids{primaryFunction,owner{name,peers{human{height}}}},human{height}}`,
 		},
 	}
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			// t.Parallel()
+			t.Parallel()
 			got := constructQuery(tt.v, tt.variables)
 			if got != tt.want {
 				t.Errorf("\ngot:  %q\nwant: %q\n", got, tt.want)
@@ -311,6 +314,7 @@ func TestConstructMutation(t *testing.T) {
 
 func TestQueryArguments(t *testing.T) {
 	tests := []struct {
+		name string
 		in   map[string]interface{}
 		want string
 	}{
@@ -353,10 +357,14 @@ func TestQueryArguments(t *testing.T) {
 		},
 	}
 	for i, tt := range tests {
-		got := queryArguments(tt.in)
-		if got != tt.want {
-			t.Errorf("test case %d:\n got: %q\nwant: %q", i, got, tt.want)
-		}
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := queryArguments(tt.in)
+			if got != tt.want {
+				t.Errorf("test case %d:\n got: %q\nwant: %q", i, got, tt.want)
+			}
+		})
 	}
 }
 

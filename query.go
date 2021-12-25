@@ -113,6 +113,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, visited *lls.Stack) {
 		if !inline {
 			io.WriteString(w, "{")
 		}
+		first := true
 		for i := 0; i < t.NumField(); i++ {
 			field := t.Field(i)
 			baseFieldType := field.Type
@@ -128,7 +129,7 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, visited *lls.Stack) {
 				continue
 			}
 
-			if i != 0 {
+			if !first {
 				io.WriteString(w, ",")
 			}
 
@@ -150,6 +151,8 @@ func writeQuery(w io.Writer, t reflect.Type, inline bool, visited *lls.Stack) {
 			if !reflect.PtrTo(field.Type).Implements(jsonUnmarshaler) {
 				visited.Pop()
 			}
+
+			first = false
 		}
 		if !inline {
 			io.WriteString(w, "}")
