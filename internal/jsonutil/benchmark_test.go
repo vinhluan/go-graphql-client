@@ -1,15 +1,15 @@
 package jsonutil_test
 
 import (
-	"encoding/json"
 	"io"
 	"reflect"
 	"strings"
 	"testing"
 	"time"
 
-	"github.com/r0busta/graphql"
-	"github.com/r0busta/graphql/internal/jsonutil"
+	"github.com/goccy/go-json"
+	"github.com/vinhluan/graphql"
+	"github.com/vinhluan/graphql/internal/jsonutil"
 )
 
 func TestUnmarshalGraphQL_benchmark(t *testing.T) {

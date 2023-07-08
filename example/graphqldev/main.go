@@ -7,17 +7,17 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"os"
 
+	"github.com/goccy/go-json"
 	graphqlserver "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/example/starwars"
 	"github.com/graph-gophers/graphql-go/relay"
-	"github.com/r0busta/graphql"
+	"github.com/vinhluan/graphql"
 )
 
 func main() {
@@ -73,7 +73,7 @@ func run() error {
 	variables := map[string]interface{}{
 		"characterID": graphql.ID("1003"),
 	}
-	err = client.Query(context.Background(), &q, variables)
+	_, err = client.Query(context.Background(), &q, variables)
 	if err != nil {
 		return err
 	}

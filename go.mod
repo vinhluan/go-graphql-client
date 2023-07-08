@@ -1,9 +1,10 @@
-module github.com/r0busta/graphql
+module github.com/vinhluan/graphql
 
-go 1.17
+go 1.19
 
 require (
 	github.com/emirpasic/gods v1.12.0
+	github.com/goccy/go-json v0.10.2
 	github.com/golang/mock v1.6.0
 	github.com/graph-gophers/graphql-go v1.2.0
 	github.com/thoas/go-funk v0.9.1

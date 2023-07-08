@@ -4,10 +4,10 @@ Package `graphql` provides a GraphQL client implementation.
 
 ## Installation
 
-`graphql` requires Go version 1.8 or later.
+`graphql` requires Go version 1.19 or later.
 
 ```bash
-go get -u github.com/r0busta/graphql
+go get -u github.com/vinhluan/go-graphql-client
 ```
 
 ## Usage
@@ -98,10 +98,10 @@ var q struct {
 }
 ```
 
-Then call `client. Query` :
+Then call `client.Query` :
 
 ```Go
-err := client.Query(context.Background(), &q, nil)
+result, err := client.Query(context.Background(), &q, nil)
 if err != nil {
     // Handle error.
 }
@@ -136,7 +136,7 @@ variables := map[string]interface{}{
 Finally, call `client.Query` providing `variables` :
 
 ```Go
-err := client.Query(context.Background(), &q, variables)
+result, err := client.Query(context.Background(), &q, variables)
 if err != nil {
     // Handle error.
 }
@@ -202,7 +202,7 @@ var q struct {
 Then call `client. Query` :
 
 ```Go
-err := client.Query(context.Background(), &q, nil)
+result, err := client.Query(context.Background(), &q, nil)
 if err != nil {
     // Handle error.
 }
@@ -259,7 +259,7 @@ variables := map[string]interface{}{
 Then call `client. Mutate` :
 
 ```Go
-err := client.Mutate(context.Background(), &m, variables)
+result, err := client.Mutate(context.Background(), &m, variables)
 if err != nil {
     // Handle error.
 }
@@ -273,10 +273,6 @@ fmt.Printf("Created a %v star review: %v\n", m.CreateReview.Stars, m.CreateRevie
 
 | Path                                                                                   | Synopsis                                                                                                        |
 |----------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| [example/graphqldev](https://godoc.org/github.com/r0busta/graphql/example/graphqldev) | graphqldev is a test program currently being used for developing graphql package.                               |
-| [ident](https://godoc.org/github.com/r0busta/graphql/ident)                           | Package ident provides functions for parsing and converting identifier names between various naming convention. |
-| [internal/jsonutil](https://godoc.org/github.com/r0busta/graphql/internal/jsonutil)   | Package jsonutil provides a function for decoding JSON into a GraphQL query data structure.                     |
-
-## License
-
-- [MIT License](LICENSE)
+| [example/graphqldev](https://godoc.org/github.com/vinhluan/graphql/example/graphqldev) | graphqldev is a test program currently being used for developing graphql package.                               |
+| [ident](https://godoc.org/github.com/vinhluan/graphql/ident)                            | Package ident provides functions for parsing and converting identifier names between various naming convention. |
+| [internal/jsonutil](https://godoc.org/github.com/vinhluan/graphql/internal/jsonutil)    | Package jsonutil provides a function for decoding JSON into a GraphQL query data structure.                     |

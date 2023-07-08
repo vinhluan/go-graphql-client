@@ -2,14 +2,14 @@ package graphql
 
 import (
 	"bytes"
-	"encoding/json"
 	"io"
 	"reflect"
 	"sort"
 
 	lls "github.com/emirpasic/gods/stacks/linkedliststack"
-	"github.com/r0busta/graphql/ident"
+	"github.com/goccy/go-json"
 	"github.com/thoas/go-funk"
+	"github.com/vinhluan/graphql/ident"
 )
 
 func constructQuery(v interface{}, variables map[string]interface{}) string {

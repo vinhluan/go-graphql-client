@@ -4,12 +4,13 @@ package jsonutil
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"reflect"
 	"strings"
+
+	"github.com/goccy/go-json"
 )
 
 // UnmarshalGraphQL parses the JSON-encoded GraphQL response data and stores

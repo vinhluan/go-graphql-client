@@ -83,9 +83,9 @@ func TestConstructQuery(t *testing.T) {
 							}
 						} `graphql:"comments(first:1after:\"Y3Vyc29yOjE5NTE4NDI1Ng==\")"`
 					} `graphql:"issue(number:1)"`
-				} `graphql:"repository(owner:\"r0busta-test\"name:\"test-repo\")"`
+				} `graphql:"repository(owner:\"vinhluan-test\"name:\"test-repo\")"`
 			}{},
-			want: `{repository(owner:"r0busta-test"name:"test-repo"){databaseId,url,issue(number:1){comments(first:1after:"Y3Vyc29yOjE5NTE4NDI1Ng=="){edges{node{body,author{login},editor{login}},cursor}}}}}`,
+			want: `{repository(owner:"vinhluan-test"name:"test-repo"){databaseId,url,issue(number:1){comments(first:1after:"Y3Vyc29yOjE5NTE4NDI1Ng=="){edges{node{body,author{login},editor{login}},cursor}}}}}`,
 		},
 		{
 			v: func() interface{} {
@@ -116,10 +116,10 @@ func TestConstructQuery(t *testing.T) {
 								}
 							} `graphql:"comments(first:1)"`
 						} `graphql:"issue(number:1)"`
-					} `graphql:"repository(owner:\"r0busta-test\"name:\"test-repo\")"`
+					} `graphql:"repository(owner:\"vinhluan-test\"name:\"test-repo\")"`
 				}{}
 			}(),
-			want: `{repository(owner:"r0busta-test"name:"test-repo"){databaseId,url,issue(number:1){comments(first:1){edges{node{databaseId,author{login,avatarUrl,url},publishedAt,lastEditedAt,editor{login,avatarUrl,url},body,viewerCanUpdate},cursor}}}}}`,
+			want: `{repository(owner:"vinhluan-test"name:"test-repo"){databaseId,url,issue(number:1){comments(first:1){edges{node{databaseId,author{login,avatarUrl,url},publishedAt,lastEditedAt,editor{login,avatarUrl,url},body,viewerCanUpdate},cursor}}}}}`,
 		},
 		{
 			v: func() interface{} {
@@ -169,10 +169,10 @@ func TestConstructQuery(t *testing.T) {
 								}
 							} `graphql:"comments(first:1)"`
 						} `graphql:"issue(number:1)"`
-					} `graphql:"repository(owner:\"r0busta-test\"name:\"test-repo\")"`
+					} `graphql:"repository(owner:\"vinhluan-test\"name:\"test-repo\")"`
 				}{}
 			}(),
-			want: `{repository(owner:"r0busta-test"name:"test-repo"){issue(number:1){author{login,avatarUrl(size:72),url},publishedAt,lastEditedAt,editor{login,avatarUrl(size:72),url},body,reactionGroups{content,users{totalCount},viewerHasReacted},viewerCanUpdate,comments(first:1){nodes{databaseId,author{login,avatarUrl(size:72),url},publishedAt,lastEditedAt,editor{login,avatarUrl(size:72),url},body,reactionGroups{content,users{totalCount},viewerHasReacted},viewerCanUpdate},pageInfo{endCursor,hasNextPage}}}}}`,
+			want: `{repository(owner:"vinhluan-test"name:"test-repo"){issue(number:1){author{login,avatarUrl(size:72),url},publishedAt,lastEditedAt,editor{login,avatarUrl(size:72),url},body,reactionGroups{content,users{totalCount},viewerHasReacted},viewerCanUpdate,comments(first:1){nodes{databaseId,author{login,avatarUrl(size:72),url},publishedAt,lastEditedAt,editor{login,avatarUrl(size:72),url},body,reactionGroups{content,users{totalCount},viewerHasReacted},viewerCanUpdate},pageInfo{endCursor,hasNextPage}}}}}`,
 		},
 		{
 			v: struct {
@@ -180,9 +180,9 @@ func TestConstructQuery(t *testing.T) {
 					Issue struct {
 						Body String
 					} `graphql:"issue(number: 1)"`
-				} `graphql:"repository(owner:\"r0busta-test\"name:\"test-repo\")"`
+				} `graphql:"repository(owner:\"vinhluan-test\"name:\"test-repo\")"`
 			}{},
-			want: `{repository(owner:"r0busta-test"name:"test-repo"){issue(number: 1){body}}}`,
+			want: `{repository(owner:"vinhluan-test"name:"test-repo"){issue(number: 1){body}}}`,
 		},
 		{
 			v: struct {
@@ -193,7 +193,7 @@ func TestConstructQuery(t *testing.T) {
 				} `graphql:"repository(owner: $repositoryOwner, name: $repositoryName)"`
 			}{},
 			variables: map[string]interface{}{
-				"repositoryOwner": String("r0busta-test"),
+				"repositoryOwner": String("vinhluan-test"),
 				"repositoryName":  String("test-repo"),
 				"issueNumber":     Int(1),
 			},
@@ -214,7 +214,7 @@ func TestConstructQuery(t *testing.T) {
 				} `graphql:"repository(owner: $repositoryOwner, name: $repositoryName)"`
 			}{},
 			variables: map[string]interface{}{
-				"repositoryOwner": String("r0busta-test"),
+				"repositoryOwner": String("vinhluan-test"),
 				"repositoryName":  String("test-repo"),
 				"issueNumber":     Int(1),
 			},

@@ -3,21 +3,26 @@ package graphql
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
+	"github.com/goccy/go-json"
 	"golang.org/x/net/context/ctxhttp"
 )
 
 //go:generate mockgen -destination=./mock/graphql.go -package=mock . GraphQL
 type GraphQL interface {
-	QueryString(ctx context.Context, q string, variables map[string]interface{}, v interface{}) error
-	Query(ctx context.Context, q interface{}, variables map[string]interface{}) error
+	QueryString(ctx context.Context, q string, variables map[string]interface{}, v interface{}) (*Result, error)
+	Query(ctx context.Context, q interface{}, variables map[string]interface{}) (*Result, error)
 
-	Mutate(ctx context.Context, m interface{}, variables map[string]interface{}) error
-	MutateString(ctx context.Context, m string, variables map[string]interface{}, v interface{}) error
+	Mutate(ctx context.Context, m interface{}, variables map[string]interface{}) (*Result, error)
+	MutateString(ctx context.Context, m string, variables map[string]interface{}, v interface{}) (*Result, error)
+}
+
+type Result struct {
+	Data       *json.RawMessage
+	Errors     errors
+	Extensions map[string]interface{}
 }
 
 // Client is a GraphQL client.
@@ -41,14 +46,14 @@ func NewClient(url string, httpClient *http.Client) *Client {
 // QueryString executes a single GraphQL query request,
 // using the given raw query `q` and populating the response into the `v`.
 // `q` should be a correct GraphQL query request string that corresponds to the GraphQL schema.
-func (c *Client) QueryString(ctx context.Context, q string, variables map[string]interface{}, v interface{}) error {
+func (c *Client) QueryString(ctx context.Context, q string, variables map[string]interface{}, v interface{}) (*Result, error) {
 	return c.do(ctx, q, variables, v)
 }
 
 // Query executes a single GraphQL query request,
 // with a query derived from q, populating the response into it.
 // q should be a pointer to struct that corresponds to the GraphQL schema.
-func (c *Client) Query(ctx context.Context, q interface{}, variables map[string]interface{}) error {
+func (c *Client) Query(ctx context.Context, q interface{}, variables map[string]interface{}) (*Result, error) {
 	query := constructQuery(q, variables)
 	return c.do(ctx, query, variables, q)
 }
@@ -56,7 +61,7 @@ func (c *Client) Query(ctx context.Context, q interface{}, variables map[string]
 // Mutate executes a single GraphQL mutation request,
 // with a mutation derived from m, populating the response into it.
 // m should be a pointer to struct that corresponds to the GraphQL schema.
-func (c *Client) Mutate(ctx context.Context, m interface{}, variables map[string]interface{}) error {
+func (c *Client) Mutate(ctx context.Context, m interface{}, variables map[string]interface{}) (*Result, error) {
 	query := constructMutation(m, variables)
 	return c.do(ctx, query, variables, m)
 }
@@ -64,12 +69,12 @@ func (c *Client) Mutate(ctx context.Context, m interface{}, variables map[string
 // MutateString executes a single GraphQL mutation request,
 // using the given raw query `m` and populating the response into it.
 // `m` should be a correct GraphQL mutation request string that corresponds to the GraphQL schema.
-func (c *Client) MutateString(ctx context.Context, m string, variables map[string]interface{}, v interface{}) error {
+func (c *Client) MutateString(ctx context.Context, m string, variables map[string]interface{}, v interface{}) (*Result, error) {
 	return c.do(ctx, m, variables, v)
 }
 
 // do executes a single GraphQL operation.
-func (c *Client) do(ctx context.Context, query string, variables map[string]interface{}, v interface{}) error {
+func (c *Client) do(ctx context.Context, query string, variables map[string]interface{}, v interface{}) (*Result, error) {
 	in := struct {
 		Query     string                 `json:"query"`
 		Variables map[string]interface{} `json:"variables,omitempty"`
@@ -80,38 +85,31 @@ func (c *Client) do(ctx context.Context, query string, variables map[string]inte
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(in)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	resp, err := ctxhttp.Post(ctx, c.httpClient, c.url, "application/json", &buf)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return fmt.Errorf("non-200 OK status code: %v body: %q", resp.Status, body)
+		return nil, fmt.Errorf("non-200 OK status code: %v", resp.Status)
 	}
-	var out struct {
-		Data   *json.RawMessage
-		Errors errors
-		// Extensions interface{} // Unused.
-	}
+	var out Result
 	err = json.NewDecoder(resp.Body).Decode(&out)
 	if err != nil {
 		// TODO: Consider including response body in returned error, if deemed helpful.
-		return err
+		return nil, err
 	}
 	if out.Data != nil {
 		err := json.Unmarshal(*out.Data, v)
 		if err != nil {
 			// TODO: Consider including response body in returned error, if deemed helpful.
-			return err
+			return nil, err
 		}
 	}
-	if len(out.Errors) > 0 {
-		return out.Errors
-	}
-	return nil
+	// Returns Result struct which contains parsed response body to expose raw data, errors and extensions fields
+	return &out, out.Errors
 }
 
 // errors represents the "errors" array in a response from a GraphQL server.
