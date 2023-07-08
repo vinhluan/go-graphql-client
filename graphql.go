@@ -21,7 +21,7 @@ type GraphQL interface {
 
 type Result struct {
 	Data       *json.RawMessage
-	Errors     errors
+	Errors     OpErrors
 	Extensions map[string]interface{}
 }
 
@@ -74,7 +74,7 @@ func (c *Client) MutateString(ctx context.Context, m string, variables map[strin
 }
 
 // do executes a single GraphQL operation.
-func (c *Client) do(ctx context.Context, query string, variables map[string]interface{}, v interface{}) (*Result, error) {
+func (c *Client) do(ctx context.Context, query string, variables map[string]interface{}, v interface{}) (result *Result, err error) {
 	in := struct {
 		Query     string                 `json:"query"`
 		Variables map[string]interface{} `json:"variables,omitempty"`
@@ -83,7 +83,7 @@ func (c *Client) do(ctx context.Context, query string, variables map[string]inte
 		Variables: variables,
 	}
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(in)
+	err = json.NewEncoder(&buf).Encode(in)
 	if err != nil {
 		return nil, err
 	}
@@ -95,28 +95,30 @@ func (c *Client) do(ctx context.Context, query string, variables map[string]inte
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("non-200 OK status code: %v", resp.Status)
 	}
-	var out Result
-	err = json.NewDecoder(resp.Body).Decode(&out)
+	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		// TODO: Consider including response body in returned error, if deemed helpful.
 		return nil, err
 	}
-	if out.Data != nil {
-		err := json.Unmarshal(*out.Data, v)
+	if result.Data != nil {
+		err = json.Unmarshal(*result.Data, v)
 		if err != nil {
 			// TODO: Consider including response body in returned error, if deemed helpful.
 			return nil, err
 		}
 	}
+	if len(result.Errors) > 0 {
+		err = result.Errors
+	}
 	// Returns Result struct which contains parsed response body to expose raw data, errors and extensions fields
-	return &out, out.Errors
+	return
 }
 
-// errors represents the "errors" array in a response from a GraphQL server.
+// OpErrors represents the "errors" array in a response from a GraphQL server.
 // If returned via error interface, the slice is expected to contain at least 1 element.
 //
 // Specification: https://facebook.github.io/graphql/#sec-Errors.
-type errors []struct {
+type OpErrors []struct {
 	Message   string
 	Locations []struct {
 		Line   int
@@ -125,7 +127,7 @@ type errors []struct {
 }
 
 // Error implements error interface.
-func (e errors) Error() string {
+func (e OpErrors) Error() string {
 	return e[0].Message
 }
 
