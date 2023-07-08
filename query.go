@@ -9,7 +9,7 @@ import (
 	lls "github.com/emirpasic/gods/stacks/linkedliststack"
 	"github.com/goccy/go-json"
 	"github.com/thoas/go-funk"
-	"github.com/vinhluan/graphql/ident"
+	"github.com/vinhluan/go-graphql-client/ident"
 )
 
 func constructQuery(v interface{}, variables map[string]interface{}) string {

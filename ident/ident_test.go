@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/vinhluan/graphql/ident"
+	"github.com/vinhluan/go-graphql-client/ident"
 )
 
 func Example_lowerCamelCaseToMixedCaps() {

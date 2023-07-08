@@ -5,4 +5,4 @@
 // That package is driving the feature development.
 //
 // For now, see README for more details.
-package graphql // import "github.com/vinhluan/graphql"
+package graphql // import "github.com/vinhluan/go-graphql-client"

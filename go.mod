@@ -1,4 +1,4 @@
-module github.com/vinhluan/graphql
+module github.com/vinhluan/go-graphql-client
 
 go 1.19
 
